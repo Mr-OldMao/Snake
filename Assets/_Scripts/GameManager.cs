@@ -5,11 +5,30 @@ using UnityEngine;
 class GameManager : MonoBehaviour
 {
     public AudioManager audioManagerScript;
-    void Start()
+    public static GameModel curGameModel;          //接收StartScene场景下所选择的游戏模式
+    public static GameSkin curGameSkin;            //接收StartScene场景下所选择的游戏皮肤
+
+
+
+    private static GameManager m_Instance = null;
+    private GameManager() { }
+    public static GameManager GetInstatnce()
     {
-        audioManagerScript.PlayAudio(0);
+        if (m_Instance == null)
+            m_Instance = new GameManager();
+        return m_Instance;
+    }  
+
+
+    void Start()
+    { 
+        audioManagerScript.PlayAudio(0); 
     }
+
+   
 }
+
+ 
 /// <summary>
 /// 打包的类型
 /// </summary>
@@ -29,7 +48,12 @@ public enum GameModel
     /// </summary>
     Normal,
     /// <summary>
-    /// 无尽模式
+    /// 竞争模式
     /// </summary>
-    Endless
+    Game
+}
+public enum GameSkin
+{
+    Yellow,
+    Bule
 }

@@ -17,7 +17,7 @@ public class CreateFood : MonoBehaviour
     private float m_PosX;
     private float m_PosY;
     //当前场景是否存在食物 
-    private static  bool m_IsExistFood = false;
+    public static  bool isExistFood = false;
 
 
     public
@@ -39,7 +39,7 @@ public class CreateFood : MonoBehaviour
 
     public void FoodByEat()
     {
-        m_IsExistFood = false;
+        isExistFood = false;
     }
 
 
@@ -48,12 +48,12 @@ public class CreateFood : MonoBehaviour
     /// </summary>
     private void RandomInsFood()
     {
-        if (!m_IsExistFood)
+        if (!isExistFood)
         { 
             GameObject foodClone = Instantiate(foodProfab, parentTrs, false);
             foodClone.GetComponent<Image>().sprite = spr_Food[Random.Range(0, spr_Food.Length)];
             foodClone.transform.localPosition = new Vector3(Random.Range(-m_PosX, m_PosX), Random.Range(-m_PosY, m_PosY), 0);
-            m_IsExistFood = true;
+            isExistFood = true;
         }
     }
 }

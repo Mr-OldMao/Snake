@@ -48,8 +48,11 @@
   <ItemGroup>
      <Compile Include="Assets\_Scripts\AudioManager.cs" />
      <Compile Include="Assets\_Scripts\CreateFood.cs" />
+     <Compile Include="Assets\_Scripts\Enemy.cs" />
      <Compile Include="Assets\_Scripts\GameManager.cs" />
-     <Compile Include="Assets\_Scripts\Move.cs" />
+     <Compile Include="Assets\_Scripts\SnakeHead.cs" />
+     <Compile Include="Assets\_Scripts\StartScene.cs" />
+     <Compile Include="Assets\_Scripts\UIManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/SystemSoftware/Unity5.6.4f1/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
