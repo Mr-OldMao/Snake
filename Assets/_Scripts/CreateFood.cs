@@ -16,30 +16,37 @@ public class CreateFood : MonoBehaviour
     //食物所生成的范围 绝对值
     private float m_PosX;
     private float m_PosY;
-    //当前场景是否存在食物 
-    public static  bool isExistFood = false;
+
+    public static int FoodMinCount;  //场景中存在“食物”个数下限
+    public static int curFoodCount;  //当前场景中存在“食物”个数
 
 
-    public
 
-    void Start()
+    public void Start()
     {
         InitData();
     }
     void InitData()
     {
-        m_PosX = 940;
-        m_PosY = 515;
+        curFoodCount = 0;
+        if (GameManager.curGameModel == GameModel.Game)
+        {
+            m_PosX = 1780;
+            m_PosY = 880;
+            FoodMinCount = 2;
+        } 
+        else
+        {
+            m_PosX = 940;
+            m_PosY = 515;
+            FoodMinCount = 1;
+        } 
     }
 
     void Update()
     {
-        RandomInsFood();
-    }
-
-    public void FoodByEat()
-    {
-        isExistFood = false;
+        if (curFoodCount < FoodMinCount)
+            RandomInsFood();
     }
 
 
@@ -48,12 +55,9 @@ public class CreateFood : MonoBehaviour
     /// </summary>
     private void RandomInsFood()
     {
-        if (!isExistFood)
-        { 
-            GameObject foodClone = Instantiate(foodProfab, parentTrs, false);
-            foodClone.GetComponent<Image>().sprite = spr_Food[Random.Range(0, spr_Food.Length)];
-            foodClone.transform.localPosition = new Vector3(Random.Range(-m_PosX, m_PosX), Random.Range(-m_PosY, m_PosY), 0);
-            isExistFood = true;
-        }
+        GameObject foodClone = Instantiate(foodProfab, parentTrs, false);
+        foodClone.GetComponent<Image>().sprite = spr_Food[Random.Range(0, spr_Food.Length)];
+        foodClone.transform.localPosition = new Vector3(Random.Range(-m_PosX, m_PosX), Random.Range(-m_PosY, m_PosY), 0);
+        curFoodCount++;
     }
 }

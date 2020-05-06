@@ -10,13 +10,21 @@ public class StartScene : MonoBehaviour
 {
     public Button btn_StartGame;
     public Button btn_ExitGame;
-    public Button btn_Rule;                     //控制面板规则开关
-    public Button btn_ExitRule;               //关闭规则面板
-    public Toggle[] tge_Model;                //游戏模式
-    public Toggle[] tge_Skin;                 //皮肤  0-小蓝 1-小黄 
-    public Text[] txt_Bast;                  //最高的 0-长度 1-分数 2-杀敌数
-    public Text[] txt_Before;                //上一次的 0-长度 1-分数 2-杀敌数  
-    public Image img_Rule;                   //规则面板
+    [Header("游戏模式规则")]
+    public Button btn_RuleModel;                //控制面板规则开关
+    public Button btn_ExitRuleModel;            //关闭规则面板
+    public Image img_RuleModel;                  //规则面板
+    [Header("分数规则")]
+    public Button btn_RuleScore;                 //控制面板规则开关
+    public Button btn_ExitRuleScore;             //关闭规则面板
+    public Image img_RuleScore;                  //规则面板
+
+    public Toggle[] tge_Model;                   //游戏模式
+    public Toggle[] tge_Skin;                    //皮肤  0-小蓝 1-小黄 
+    public Text[] txt_Bast;                      //最高的 0-长度 1-分数 2-杀敌数
+    public Text[] txt_Before;                    //上一次的 0-长度 1-分数 2-杀敌数  
+
+    public GameObject foodContainer;             //食物实体容器
     void Awake()
     {
         //设置分辨率
@@ -27,7 +35,8 @@ public class StartScene : MonoBehaviour
     void Start()
     {
         //DeleteLogin()  测试辅助工具
-        img_Rule.gameObject.SetActive(false);
+        img_RuleModel.gameObject.SetActive(false);
+        img_RuleScore.gameObject.SetActive(false);
         btn_StartGame.onClick.AddListener(() =>
         {
             //向Main场景传输所选的属性
@@ -55,49 +64,96 @@ public class StartScene : MonoBehaviour
             {
                 GameManager.curGameSkin = GameSkin.Yellow;
             }
-            CreateFood.isExistFood = false;
             SceneManager.LoadScene("Main");
         });
+        #region 规则面板btn事件
         //开关规则img
-        btn_ExitRule.onClick.AddListener(() =>
+        btn_ExitRuleModel.onClick.AddListener(() =>
         {
-            img_Rule.GetComponent<Animator>().SetTrigger("exit");
-            StartCoroutine("WaitAnimClose");
+            img_RuleModel.GetComponent<Animator>().SetTrigger("exit");
+            StartCoroutine("WaitAnimClose", img_RuleModel);
         });
-        btn_Rule.onClick.AddListener(() =>
+        btn_RuleModel.onClick.AddListener(() =>
         {
-            RulePanleAnim();
+            RulePanleAnimByModel();
         });
+        //分数规则
+        btn_ExitRuleScore.onClick.AddListener(() =>
+        {
+            img_RuleScore.GetComponent<Animator>().SetTrigger("exit");
+            StartCoroutine("WaitAnimClose",img_RuleScore);
+        });
+        btn_RuleScore.onClick.AddListener(() =>
+        {
+            RulePanleAnimByScore();
+        });
+        #endregion
+
+
 
         btn_ExitGame.onClick.AddListener(() =>
         {
+            GetComponent<AudioSource>().Stop();
             Application.Quit();
         });
         //更新成绩
         UpdateScore();
+        //食物动画
+        InvokeRepeating("FoodAnim", 0.1f, 0.5f);
+    }
+    #region 动画
+
+    //食物动画
+    private void FoodAnim()
+    {
+        int rangeNum = Random.Range(0, 10);
+        string triggerName = "food" + rangeNum.ToString();
+        Debug.Log(triggerName);
+        foodContainer.GetComponent<Animator>().SetTrigger(triggerName);
+        foodContainer.GetComponent<Animator>().speed = 1.5f;
     }
 
-    private void RulePanleAnim()
+    //模式规则动画
+    private void RulePanleAnimByModel()
     {
-        if (!img_Rule.gameObject.activeSelf)
+        if (!img_RuleModel.gameObject.activeSelf)
         {
-            img_Rule.gameObject.SetActive(true);
-            img_Rule.GetComponent<Animator>().SetTrigger("open");
+            img_RuleModel.gameObject.SetActive(true);
+            img_RuleModel.GetComponent<Animator>().SetTrigger("open");
         }
         else
         {
-            img_Rule.GetComponent<Animator>().SetTrigger("exit");
-            StartCoroutine("WaitAnimClose");
+            img_RuleModel.GetComponent<Animator>().SetTrigger("exit");
+            StartCoroutine("WaitAnimClose", img_RuleModel);
         }
     }
-    IEnumerator WaitAnimClose()
+    //分数规则动画
+    private void RulePanleAnimByScore()
+    {
+        if (!img_RuleScore.gameObject.activeSelf)
+        {
+            img_RuleScore.gameObject.SetActive(true);
+            img_RuleScore.GetComponent<Animator>().SetTrigger("open");
+        }
+        else
+        {
+            img_RuleScore.GetComponent<Animator>().SetTrigger("exit");
+            StartCoroutine("WaitAnimClose", img_RuleScore); 
+        }
+    }
+    IEnumerator WaitAnimClose(Image targetImg)
     {
         yield return new WaitForSeconds(0.5f);
-        img_Rule.gameObject.SetActive(false);
-    }
+        targetImg.gameObject.SetActive(false);
+    } 
+    #endregion
 
 
 
+    #region  分数数据本地持久化
+    /// <summary>
+    /// 分数本地化处理
+    /// </summary>
     private void UpdateScore()
     {
         //更新上一次成绩
@@ -128,6 +184,10 @@ public class StartScene : MonoBehaviour
         }
     }
 
+
+
+
+
     /// <summary>
     /// 清理注册表
     /// </summary>
@@ -150,12 +210,15 @@ public class StartScene : MonoBehaviour
         PlayerPrefs.SetInt("beforeKill", killNum);
         // 判定最高记录 
         if (length >= PlayerPrefs.GetInt("bestLength", 0) &&
-         score >= PlayerPrefs.GetInt("bestScore", 0) &&
-       killNum >= PlayerPrefs.GetInt("bestKill", 0))
+         score >= PlayerPrefs.GetInt("bestScore", 0))
         {
             PlayerPrefs.SetInt("bestLength", length);
             PlayerPrefs.SetInt("bestScore", score);
+        }
+        if (killNum >= PlayerPrefs.GetInt("bestKill", 0))
+        {
             PlayerPrefs.SetInt("bestKill", killNum);
         }
     }
+    #endregion
 }
